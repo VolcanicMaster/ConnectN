@@ -21,9 +21,9 @@ class AlphaBetaAgent(agent.Agent):
     #
     # PARAM [board.Board] brd: the current board state
     def evaluate(self, brd):
-        """Evaluate the a heuristic of the board state"""
+        """Evaluate a heuristic of the board state"""
         # Your code here
-        
+
     # Pick a column.
     #
     # PARAM [board.Board] brd: the current board state
