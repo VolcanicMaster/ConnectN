@@ -34,10 +34,13 @@ class AlphaBetaAgent(agent.Agent):
     def go(self, brd):
         """Search for the best move (choice of column for the token)"""
         # Your code here
-        # Try a move (copy board, edit with new move)
+        # Try a move (copy board, edit with add_token)
+        simBrd = brd.copy()
+        simBrd.add_token(self, 0)
         # Try move as opponent in response
         # Repeat until cutoff(max_depth) is reached
         # Evaluate that boardstate
+
 
 
     # Get the successors of the given board.
