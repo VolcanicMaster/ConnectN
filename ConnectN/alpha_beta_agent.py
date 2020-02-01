@@ -36,9 +36,9 @@ class AlphaBetaAgent(agent.Agent):
         # Your code here
         # Try a move (copy board, edit with new move)
         # Try move as opponent in response
-        # Repeat until cutoff is reached
+        # Repeat until cutoff(max_depth) is reached
         # Evaluate that boardstate
-        
+
 
     # Get the successors of the given board.
     #
