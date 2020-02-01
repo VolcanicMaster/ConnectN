@@ -20,6 +20,7 @@ class AlphaBetaAgent(agent.Agent):
     # Evaluate a Board State.
     #
     # PARAM [board.Board] brd: the current board state
+    # RETURN [int]: an estimation of the utility of the board
     def evaluate(self, brd):
         """Evaluate a heuristic of the board state"""
         # Your code here
