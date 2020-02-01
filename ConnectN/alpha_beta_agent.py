@@ -17,6 +17,13 @@ class AlphaBetaAgent(agent.Agent):
         # Max search depth
         self.max_depth = max_depth
 
+    # Evaluate a Board State.
+    #
+    # PARAM [board.Board] brd: the current board state
+    def evaluate(self, brd):
+        """Evaluate the a heuristic of the board state"""
+        # Your code here
+        
     # Pick a column.
     #
     # PARAM [board.Board] brd: the current board state
