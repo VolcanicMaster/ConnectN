@@ -38,7 +38,7 @@ class AlphaBetaAgent(agent.Agent):
         countToCutoff = 0
         simBrd = brd.copy()
 
-        self.tryMoves(simBrd, countToCutoff)
+        return self.tryMoves(simBrd, countToCutoff)
 
     # return the move that leads to the board with the best a-b evaluation
     def tryMoves(self, brd, count):
@@ -48,15 +48,16 @@ class AlphaBetaAgent(agent.Agent):
             # Recurse until cutoff(max_depth) is reached
             brdToEval = self.tryMove(brd,x,count,True)
             # Evaluate that boardstate
-            eval = 0
+            eval = self.evaluate(brdToEval)
             if eval > bestMoveEval:
                 bestMoveEval = eval
                 bestMove = x
+        return bestMove
 
     # return the outcome of playing a move against another alpha-beta player, until the cutoff max_depth
     def tryMove(self, brd, x, count, isPlayer1):
         # Try a move (copy board, edit with add_token)
-        brd.add_token(self, x)
+        brd.add_token(x)
         # check if cutoff has been reached
         count += 1
         if count == self.max_depth:
