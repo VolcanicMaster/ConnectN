@@ -34,14 +34,29 @@ class AlphaBetaAgent(agent.Agent):
     def go(self, brd):
         """Search for the best move (choice of column for the token)"""
         # Your code here
-        # Try a move (copy board, edit with add_token)
+        # when countToCutoff reaches max_depth, stop the search and evaluate
+        countToCutoff = 0
         simBrd = brd.copy()
-        simBrd.add_token(self, 0)
-        # Try move as opponent in response
-        # Repeat until cutoff(max_depth) is reached
-        # Evaluate that boardstate
 
+        self.tryMoves(self, simBrd, countToCutoff)
 
+    # return the board with the maximum evaluation
+    def tryMoves(self, brd, count):
+        for x in range(0, brd.w):
+            # Recurse until cutoff(max_depth) is reached
+            brdToEval = self.tryMove(self,brd,x,count,True)
+            # Evaluate that boardstate
+
+    # return the outcome of playing a move against another alpha-beta player, until the cutoff max_depth
+    def tryMove(self, brd, x, count, isPlayer1):
+        # Try a move (copy board, edit with add_token)
+        brd.add_token(self, x)
+        # check if cutoff has been reached
+        count += 1
+        if count == self.max_depth:
+            return brd
+        else:
+            self.tryMove(self,brd,x,count,not(isPlayer1))
 
     # Get the successors of the given board.
     #
