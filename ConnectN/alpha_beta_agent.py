@@ -38,7 +38,7 @@ class AlphaBetaAgent(agent.Agent):
         countToCutoff = 0
         simBrd = brd.copy()
 
-        self.tryMoves(self, simBrd, countToCutoff)
+        self.tryMoves(simBrd, countToCutoff)
 
     # return the move that leads to the board with the best a-b evaluation
     def tryMoves(self, brd, count):
@@ -46,7 +46,7 @@ class AlphaBetaAgent(agent.Agent):
         bestMoveEval = 0
         for x in brd.free_cols():
             # Recurse until cutoff(max_depth) is reached
-            brdToEval = self.tryMove(self,brd,x,count,True)
+            brdToEval = self.tryMove(brd,x,count,True)
             # Evaluate that boardstate
             eval = 0
             if eval > bestMoveEval:
@@ -62,7 +62,7 @@ class AlphaBetaAgent(agent.Agent):
         if count == self.max_depth:
             return brd
         else:
-            self.tryMove(self,brd,x,count,not(isPlayer1))
+            self.tryMove(brd,x,count,not(isPlayer1))
 
     # Get the successors of the given board.
     #
