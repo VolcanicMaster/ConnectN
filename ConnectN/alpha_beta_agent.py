@@ -42,20 +42,27 @@ class AlphaBetaAgent(agent.Agent):
 
     # return the move that leads to the board with the best a-b evaluation
     def tryMoves(self, brd, count):
+        thisPlayer = brd.player
         bestMove = 0
         bestMoveEval = 0
         for x in brd.free_cols():
+            print(x)
             # Recurse until cutoff(max_depth) is reached
-            brdToEval = self.tryMove(brd,x,count,True)
+            brdToEval = self.tryMove(brd,x,count)
             # Evaluate that boardstate
             eval = self.evaluate(brdToEval)
-            if eval > bestMoveEval:
-                bestMoveEval = eval
-                bestMove = x
+            if thisPlayer == 1:
+                if eval > bestMoveEval:
+                    bestMoveEval = eval
+                    bestMove = x
+            else:
+                if 0 - eval < bestMoveEval:
+                    bestMoveEval = eval
+                    bestMove = x
         return bestMove
 
     # return the outcome of playing a move against another alpha-beta player, until the cutoff max_depth
-    def tryMove(self, brd, x, count, isPlayer1):
+    def tryMove(self, brd, x, count):
         # Try a move (copy board, edit with add_token)
         brd.add_token(x)
         # check if cutoff has been reached
@@ -63,7 +70,7 @@ class AlphaBetaAgent(agent.Agent):
         if count == self.max_depth:
             return brd
         else:
-            self.tryMove(brd,x,count,not(isPlayer1))
+            self.tryMoves(brd,count)
 
     # Get the successors of the given board.
     #
