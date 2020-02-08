@@ -1,5 +1,6 @@
 import math
 import copy
+import board
 import agent
 
 ###########################
@@ -49,12 +50,18 @@ class AlphaBetaAgent(agent.Agent):
 
         freecols = brd.free_cols()
         for x in freecols:
-            #print(x) #TODO the column is full, that's why the while loop goes out of range?
             # Recurse until cutoff(max_depth) is reached
             brdToEval = self.tryMove(copy.deepcopy(brd),copy.deepcopy(x),copy.deepcopy(count))
             if not brd.free_cols:
                 break
             # Evaluate that boardstate
+            outcome = board.Board.get_outcome(brd)
+            if outcome != 0:
+                print({outcome, " won!"})
+                #TODO DO THIS
+                # if the person who won was this agent, return a great evaluation
+                # if the person who won was the opponent, return a terrible evaluation
+
             eval = self.evaluate(brdToEval)
             if thisPlayer == 1:
                 if eval > bestMoveEval:
