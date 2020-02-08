@@ -1,4 +1,5 @@
 import math
+import copy
 import agent
 
 ###########################
@@ -45,10 +46,14 @@ class AlphaBetaAgent(agent.Agent):
         thisPlayer = brd.player
         bestMove = 0
         bestMoveEval = 0
-        for x in brd.free_cols():
-            print(x)
+
+        freecols = brd.free_cols()
+        for x in freecols:
+            #print(x) #TODO the column is full, that's why the while loop goes out of range?
             # Recurse until cutoff(max_depth) is reached
-            brdToEval = self.tryMove(brd,x,count)
+            brdToEval = self.tryMove(copy.deepcopy(brd),copy.deepcopy(x),copy.deepcopy(count))
+            if not brd.free_cols:
+                break
             # Evaluate that boardstate
             eval = self.evaluate(brdToEval)
             if thisPlayer == 1:
@@ -64,13 +69,19 @@ class AlphaBetaAgent(agent.Agent):
     # return the outcome of playing a move against another alpha-beta player, until the cutoff max_depth
     def tryMove(self, brd, x, count):
         # Try a move (copy board, edit with add_token)
+
+        #todo check if x is a free column
+        #for x1 in brd.free_cols():
+            #if x1 == x:
+                #print("THIS IS A FREE COLUMN: x below")
+                #print(x)
         brd.add_token(x)
         # check if cutoff has been reached
         count += 1
         if count == self.max_depth:
             return brd
         else:
-            self.tryMoves(brd,count)
+            return self.tryMoves(copy.deepcopy(brd),copy.deepcopy(count))
 
     # Get the successors of the given board.
     #
