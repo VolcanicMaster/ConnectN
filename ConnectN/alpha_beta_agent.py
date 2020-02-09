@@ -40,55 +40,54 @@ class AlphaBetaAgent(agent.Agent):
         countToCutoff = 0
         simBrd = brd.copy()
 
-        return self.tryMoves(simBrd, countToCutoff)
+        thisAgent = simBrd.player
+
+        return self.tryMoves(simBrd, countToCutoff, thisAgent)
 
     # return the move that leads to the board with the best a-b evaluation
-    def tryMoves(self, brd, count):
+    def tryMoves(self, brd, count, thisAgent):
         thisPlayer = brd.player
         bestMove = 0
         bestMoveEval = 0
-
         freecols = brd.free_cols()
         for x in freecols:
-            # Recurse until cutoff(max_depth) is reached
-            brdToEval = self.tryMove(copy.deepcopy(brd),copy.deepcopy(x),copy.deepcopy(count))
+            # Recurse by simulating all possible moves and then playing the other agent up to cutoff max_depth
+            brdToEval = self.tryMove(copy.deepcopy(brd),copy.deepcopy(x),copy.deepcopy(count),thisAgent)
             if not brd.free_cols:
                 break
             # Evaluate that boardstate
-            outcome = board.Board.get_outcome(brd)
-            if outcome != 0:
-                print({outcome, " won!"})
-                #TODO DO THIS
-                # if the person who won was this agent, return a great evaluation
-                # if the person who won was the opponent, return a terrible evaluation
-
             eval = self.evaluate(brdToEval)
-            if thisPlayer == 1:
-                if eval > bestMoveEval:
-                    bestMoveEval = eval
-                    bestMove = x
-            else:
-                if 0 - eval < bestMoveEval:
-                    bestMoveEval = eval
-                    bestMove = x
+            if eval > bestMoveEval:
+                bestMoveEval = eval
+                bestMove = x
         return bestMove
 
     # return the outcome of playing a move against another alpha-beta player, until the cutoff max_depth
-    def tryMove(self, brd, x, count):
+    def tryMove(self, brd, x, count, thisAgent):
         # Try a move (copy board, edit with add_token)
 
-        #todo check if x is a free column
-        #for x1 in brd.free_cols():
-            #if x1 == x:
-                #print("THIS IS A FREE COLUMN: x below")
-                #print(x)
         brd.add_token(x)
+
+        outcome = board.Board.get_outcome(brd)
+        if outcome != 0:
+            print({outcome, " won!"})
+            #TODO DO THIS
+            # if the person who won was this agent, return a great evaluation
+            # if the person who won was the opponent, return a terrible evaluation
+            if outcome == thisAgent:
+                print("return a great evaluation")
+            else:
+                print("return a terrible evaluation")
+            board.Board.print_it(brd)
+            return brd
+
         # check if cutoff has been reached
         count += 1
         if count == self.max_depth:
+            # if the cutoff has been reached, stop the search
             return brd
         else:
-            return self.tryMoves(copy.deepcopy(brd),copy.deepcopy(count))
+            return self.tryMoves(copy.deepcopy(brd),copy.deepcopy(count),thisAgent)
 
     # Get the successors of the given board.
     #
