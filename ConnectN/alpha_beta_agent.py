@@ -22,10 +22,20 @@ class AlphaBetaAgent(agent.Agent):
     # Evaluate a Board State.
     #
     # PARAM [board.Board] brd: the current board state
+    # PARAM [int]: the player number of this instance's agent
     # RETURN [int]: an estimation of the utility of the board
-    def evaluate(self, brd):
+    def evaluate(self, brd: board.Board, thisAgent: int):
         """Evaluate a heuristic of the board state"""
         # Your code here
+        # check if someone won
+        #print(type(brd))
+        outcome: int = brd.copy().get_outcome()
+        if outcome == thisAgent:
+            return 1
+        if outcome != 0:
+            return -1
+
+        return 0
 
     # Pick a column.
     #
@@ -33,42 +43,46 @@ class AlphaBetaAgent(agent.Agent):
     # RETURN [int]: the column where the token must be added
     #
     # NOTE: make sure the column is legal, or you'll lose the game.
-    def go(self, brd):
+    def go(self, brd: board.Board):
         """Search for the best move (choice of column for the token)"""
         # Your code here
         # when countToCutoff reaches max_depth, stop the search and evaluate
+        #print("reached go")
         countToCutoff = 0
-        simBrd = brd.copy()
+        simBrd = brd.copy() #brd.copy() ?
 
         thisAgent = simBrd.player
 
         return self.tryMoves(simBrd, countToCutoff, thisAgent)
 
     # return the move that leads to the board with the best a-b evaluation
-    def tryMoves(self, brd, count, thisAgent):
+    def tryMoves(self, brd: board.Board, count, thisAgent):
+        #print("reached tryMoves")
         thisPlayer = brd.player
         bestMove = 0
         bestMoveEval = 0
         freecols = brd.free_cols()
         for x in freecols:
             # Recurse by simulating all possible moves and then playing the other agent up to cutoff max_depth
-            brdToEval = self.tryMove(copy.deepcopy(brd),copy.deepcopy(x),copy.deepcopy(count),thisAgent)
-            if not brd.free_cols:
-                break
+            brdToEval = self.tryMove(brd.copy(),copy.deepcopy(x),copy.deepcopy(count),thisAgent)
+            #if not brd.free_cols:
+            #    break
             # Evaluate that boardstate
-            eval = self.evaluate(brdToEval)
+            eval = self.evaluate(brdToEval,thisAgent)
             if eval > bestMoveEval:
+                brd = brdToEval
                 bestMoveEval = eval
                 bestMove = x
         return bestMove
 
     # return the outcome of playing a move against another alpha-beta player, until the cutoff max_depth
-    def tryMove(self, brd, x, count, thisAgent):
+    def tryMove(self, brd: board.Board, x, count: int, thisAgent: int):
+        #print("reached tryMove")
         # Try a move (copy board, edit with add_token)
 
         brd.add_token(x)
 
-        outcome = board.Board.get_outcome(brd)
+        outcome = brd.get_outcome()
         if outcome != 0:
             print({outcome, " won!"})
             #TODO DO THIS
@@ -78,7 +92,7 @@ class AlphaBetaAgent(agent.Agent):
                 print("return a great evaluation")
             else:
                 print("return a terrible evaluation")
-            board.Board.print_it(brd)
+            brd.print_it()
             return brd
 
         # check if cutoff has been reached
@@ -87,7 +101,9 @@ class AlphaBetaAgent(agent.Agent):
             # if the cutoff has been reached, stop the search
             return brd
         else:
-            return self.tryMoves(copy.deepcopy(brd),copy.deepcopy(count),thisAgent)
+            newBrd = brd.copy()
+            self.tryMoves(newBrd, copy.deepcopy(count), thisAgent)
+            return newBrd
 
     # Get the successors of the given board.
     #
