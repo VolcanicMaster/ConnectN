@@ -4,7 +4,12 @@ import agent
 import alpha_beta_agent as aba
 
 # Set random seed for reproducibility
-random.seed(1)
+
+#seed = random.choice(range(1000))
+#seed = 316 #solved
+seed = 899 #TODO random wins in this seed, resolve
+random.seed(seed)
+print(seed)
 
 #
 # Random vs. Random

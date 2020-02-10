@@ -59,14 +59,14 @@ class AlphaBetaAgent(agent.Agent):
     def tryMoves(self, brd: board.Board, count, thisAgent):
         #print("reached tryMoves")
         thisPlayer = brd.player
-        bestMove = 0
-        bestMoveEval = 0
         freecols = brd.free_cols()
+        if not freecols:
+            return 0
+        bestMove = freecols[0]
+        bestMoveEval = 0
         for x in freecols:
             # Recurse by simulating all possible moves and then playing the other agent up to cutoff max_depth
             brdToEval = self.tryMove(brd.copy(),copy.deepcopy(x),copy.deepcopy(count),thisAgent)
-            #if not brd.free_cols:
-            #    break
             # Evaluate that boardstate
             eval = self.evaluate(brdToEval,thisAgent)
             if eval > bestMoveEval:
@@ -85,9 +85,8 @@ class AlphaBetaAgent(agent.Agent):
         outcome = brd.get_outcome()
         if outcome != 0:
             print({outcome, " won!"})
-            #TODO DO THIS
-            # if the person who won was this agent, return a great evaluation
-            # if the person who won was the opponent, return a terrible evaluation
+            # if the person who won was this agent, stop and return a great evaluation
+            # if the person who won was the opponent, stop and return a terrible evaluation
             if outcome == thisAgent:
                 print("return a great evaluation")
             else:
