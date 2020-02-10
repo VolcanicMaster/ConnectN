@@ -84,14 +84,15 @@ class AlphaBetaAgent(agent.Agent):
 
         outcome = brd.get_outcome()
         if outcome != 0:
-            print({outcome, " won!"})
+            #print("found winning path: ", outcome, " won!")
+            # someone won, so stop this branch
             # if the person who won was this agent, stop and return a great evaluation
             # if the person who won was the opponent, stop and return a terrible evaluation
-            if outcome == thisAgent:
-                print("return a great evaluation")
-            else:
-                print("return a terrible evaluation")
-            brd.print_it()
+            #if outcome == thisAgent:
+            #    print("return a great evaluation")
+            #else:
+            #    print("return a terrible evaluation")
+            #brd.print_it()
             return brd
 
         # check if cutoff has been reached

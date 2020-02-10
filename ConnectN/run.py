@@ -7,7 +7,9 @@ import alpha_beta_agent as aba
 
 #seed = random.choice(range(1000))
 #seed = 316 #solved
-seed = 899 #TODO random wins in this seed, resolve
+seed = 899 #TODO random wins in seed 899, resolve. Is it going deep instead of broad?,
+#TODO we need to change the code to do a-b search, not DFS?
+# we need to trace the steps of the search to see why it doesn't block random from winning
 random.seed(seed)
 print(seed)
 
