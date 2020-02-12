@@ -128,18 +128,20 @@ class AlphaBetaAgent(agent.Agent):
     def choose_max(self, brd, player, is_min, distance_to_cut_off):
         argmax = 0#random.choice(brd.free_cols())
         maxval = -1 if not is_min else -1000
+        x = 0
         successors = self.get_successors(brd)
-        for x in range(len(successors)):
-            (argx, evaluate_x) = (x, self.evaluate(successors[x][0], player)) if distance_to_cut_off == 0 \
+        for column in brd.free_cols():
+            (argx, evaluate_x) = (column, self.evaluate(successors[x][0], player)) if distance_to_cut_off == 0 \
                 else self.choose_max(successors[x][0], (player%2) + 1, not is_min, distance_to_cut_off - 1)
             if is_min:
                 evaluate_x = -evaluate_x
-            if evaluate_x > maxval and x in brd.free_cols():
+            if evaluate_x > maxval and column in brd.free_cols():
                 maxval = evaluate_x if not is_min else -evaluate_x
-                argmax = x
+                argmax = column
             if maxval >= brd.n:
                 #print("Win state found for ", player)
                 return (argmax, maxval)
+            x += 1
 #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
 #        for i in range(0, distance_to_cut_off-1):
 #            depthstr[i] += "|"
@@ -161,7 +163,7 @@ class AlphaBetaAgent(agent.Agent):
 #        print(depthstr[2])
 #        print(depthstr[1])
 #        print(depthstr[0])
-        return self.choose_best_move(brd, 4)
+        return self.choose_best_move(brd, 3)
 
         # when countToCutoff reaches max_depth, stop the search and evaluate
         #print("reached go")
