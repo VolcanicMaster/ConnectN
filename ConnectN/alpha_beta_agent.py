@@ -102,19 +102,31 @@ class AlphaBetaAgent(agent.Agent):
         """Evaluate a heuristic of the board state"""
         # Your code here
         max_in_a_row = 0
+        total_in_a_row = 0
+        opp_in_a_row = 0
         for x in range(brd.w):
             for y in range(brd.h):
-                max_in_a_row = max(max_in_a_row, max_line_at(brd, player, x, y))
+                maxp = max_line_at(brd, player, x, y)
+                maxopp = max_line_at(brd, (player%2)+1, x, y)
+                max_in_a_row = max(max_in_a_row, maxp)
+                opp_in_a_row = max(opp_in_a_row, maxopp)
+                if maxp > 1:
+                    total_in_a_row += maxp*maxp
+                if maxopp > 1:
+                    total_in_a_row -= maxopp*maxopp
 
         #outcome: int = brd.copy().get_outcome()
         #if outcome == player:
         #    print("Winning outcome for ", player)
         #    return 1000000
 
-        return max_in_a_row
+        return total_in_a_row# - opp_in_a_row
+
+    def choose_best_move(self, brd, distance_to_cut_off):
+        return self.choose_max(brd, self.player if (distance_to_cut_off % 2) else (self.player%2) + 1, False, distance_to_cut_off)[0]
 
     def choose_max(self, brd, player, is_min, distance_to_cut_off):
-        argmax = random.choice(brd.free_cols())
+        argmax = 0#random.choice(brd.free_cols())
         maxval = -1 if not is_min else -1000
         successors = self.get_successors(brd)
         for x in range(len(successors)):
@@ -126,10 +138,11 @@ class AlphaBetaAgent(agent.Agent):
                 maxval = evaluate_x if not is_min else -evaluate_x
                 argmax = x
             if maxval >= brd.n:
+                #print("Win state found for ", player)
                 return (argmax, maxval)
-        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
-        for i in range(0, distance_to_cut_off-1):
-            depthstr[i] += "|"
+#        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
+#        for i in range(0, distance_to_cut_off-1):
+#            depthstr[i] += "|"
         return (argmax, maxval)
 
     # Pick a column.
@@ -148,7 +161,7 @@ class AlphaBetaAgent(agent.Agent):
 #        print(depthstr[2])
 #        print(depthstr[1])
 #        print(depthstr[0])
-#        return column
+        return self.choose_best_move(brd, 4)
 
         # when countToCutoff reaches max_depth, stop the search and evaluate
         #print("reached go")
@@ -156,8 +169,9 @@ class AlphaBetaAgent(agent.Agent):
         simBrd = brd.copy() #brd.copy() ?
 
         thisAgent = simBrd.player
-
-        return self.tryMoves(simBrd, countToCutoff, thisAgent)
+        bestmove = self.tryMoves(simBrd, countToCutoff, thisAgent)
+        print(bestmove, " == ", self.choose_max(brd, self.player, False, 2)[0])
+        return bestmove
 
     # return the move that leads to the board with the best a-b evaluation
     def tryMoves(self, brd: board.Board, count, thisAgent):
