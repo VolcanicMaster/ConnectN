@@ -147,12 +147,13 @@ class AlphaBetaAgent(agent.Agent):
     def instancecheck(self):
         #if next step player 1 will win
         if (self.get_outcome_short()== 1):
-            max_in_a_row = 999;
+            total_in_a_row = 999;
 
         if (self.get_outcome_short()== 2):
-            max_in_a_row = -1;
+            total_in_a_row = -1;
 
-        return max_in_a_row;
+        return total_in_a_row;
+    # instancecheck done need to be tested
 
     def evaluate(self, brd, player):
         """Evaluate a heuristic of the board state"""
@@ -160,6 +161,7 @@ class AlphaBetaAgent(agent.Agent):
         max_in_a_row = 0
         total_in_a_row = 0
         opp_in_a_row = 0
+
         for x in range(brd.w):
             for y in range(brd.h):
                 maxp = max_line_at(brd, player, x, y)
