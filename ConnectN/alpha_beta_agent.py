@@ -124,34 +124,32 @@ class AlphaBetaAgent(agent.Agent):
 
     def get_outcome_short(self):
         """Returns the winner of the game: 1 for Player 1, 2 for Player 2, and 0 for no winner"""
+        n = self.n
         for x in range(self.w):
             for y in range(self.h):
                 if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 1, 0):
-                    if ((self.board[y][x-1] == 0 and (self.board[y-1][x-1] == 1 or self.board[y-1][x-1] == 2)) or
-                        (self.board[y][x+n-1] == 0 and (self.board[y - 1][x+n-1] == 1 or self.board[y - 1][x+n-1] == 2)))
-                    return board[y][x]
+                    if (self.board[y][x-1] == 0 and (self.board[y-1][x-1] == 1 or self.board[y-1][x-1] == 2)) or (self.board[y][x+n-1] == 0 and (self.board[y - 1][x+n-1] == 1 or self.board[y - 1][x+n-1] == 2)):
+                        return board[y][x]
 
-                if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 0, 1) and self.board[y+n-1][x] = 0:
+                if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 0, 1) and self.board[y+n-1][x] == 0:
                     return board[y][x]
 
                 if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 1, 1):
-                    if ((self.board[y-1][x-1] == 0 and (self.board[y-2][x-1] == 1 or self.board[y-2][x-1] == 2)) or
-                        (self.board[y+n-1][x+n-1] == 0 and (self.board[y +n-2][x+n-1] == 1 or self.board[y +n-2][x+n-1] == 2)))
-                    return board[y][x]
+                    if (self.board[y-1][x-1] == 0 and (self.board[y-2][x-1] == 1 or self.board[y-2][x-1] == 2)) or (self.board[y+n-1][x+n-1] == 0 and (self.board[y +n-2][x+n-1] == 1 or self.board[y +n-2][x+n-1] == 2)):
+                        return board[y][x]
 
                 if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 1, -1):
-                    if ((self.board[y+1][x+1] == 0 and (self.board[y][x+1] == 1 or self.board[y][x+1] == 2)) or
-                        (self.board[y-n+1][x-n+1] == 0 and (self.board[y-n][x-n+1] == 1 or self.board[y-n][x-n+1] == 2)))
-                    return board[y][x]
+                    if (self.board[y+1][x+1] == 0 and (self.board[y][x+1] == 1 or self.board[y][x+1] == 2)) or (self.board[y-n+1][x-n+1] == 0 and (self.board[y-n][x-n+1] == 1 or self.board[y-n][x-n+1] == 2)):
+                        return board[y][x]
 
         return 0
 
-    def instancecheck(self, instance):
+    def instancecheck(self):
         #if next step player 1 will win
-        if (get_outcome_short()== 1):
+        if (self.get_outcome_short()== 1):
             max_in_a_row = 999;
 
-        if (get_outcome_short()== 2):
+        if (self.get_outcome_short()== 2):
             max_in_a_row = 0;
 
         return max_in_a_row;
