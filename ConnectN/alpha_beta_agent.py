@@ -100,10 +100,12 @@ class AlphaBetaAgent(agent.Agent):
     # RETURN [int]: an estimation of the utility of the board
     def instancecheck(self, instance):
         #if next step player 1 will win
-        max_in_a_row = 999;
+        if (get_outcome()==1):
+            max_in_a_row = 999;
 
         #if next step player 2 will win
-        max_in_a_row = 0;
+        if (get_outcome() == 2):
+            max_in_a_row = 0;
         return max_in_a_row;
 
     def evaluate(self, brd, player):
