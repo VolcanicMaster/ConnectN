@@ -123,15 +123,15 @@ class AlphaBetaAgent(agent.Agent):
         return total_in_a_row# - opp_in_a_row
 
     def choose_best_move(self, brd, distance_to_cut_off):
-        return self.choose_max(brd, self.player if (distance_to_cut_off % 2) else (self.player%2) + 1, False, distance_to_cut_off)[0]
+        return self.choose_max(brd, self.player if (distance_to_cut_off % 2) else (self.player%2) + 1, distance_to_cut_off-1, -1000000, 1000000)[0]
 
-    def choose_max(self, brd, player, is_min, distance_to_cut_off):
+    def choose_max_orig(self, brd, player, is_min, distance_to_cut_off):
         argmax = 0#random.choice(brd.free_cols())
         maxval = -1 if not is_min else -1000
         x = 0
         successors = self.get_successors(brd)
         for column in brd.free_cols():
-            (argx, evaluate_x) = (column, self.evaluate(successors[x][0], player)) if distance_to_cut_off == 0 \
+            (argx, evaluate_x) = (column, self.evaluate(successors[x][0], player)) if distance_to_cut_off <= 0 \
                 else self.choose_max(successors[x][0], (player%2) + 1, not is_min, distance_to_cut_off - 1)
             if is_min:
                 evaluate_x = -evaluate_x
@@ -146,6 +146,63 @@ class AlphaBetaAgent(agent.Agent):
 #        for i in range(0, distance_to_cut_off-1):
 #            depthstr[i] += "|"
         return (argmax, maxval)
+
+    def choose_max(self, brd, player, distance_to_cut_off, parentalpha, parentbeta):
+        alpha = -1000000
+        beta = 1000000
+        argmax = 0  # random.choice(brd.free_cols())
+        maxval = -1
+        x = 0
+        successors = self.get_successors(brd)
+        for column in brd.free_cols():
+            (argx, evaluate_x) = (column, self.evaluate(successors[x][0], player)) if distance_to_cut_off <= 0 \
+                else self.choose_min(successors[x][0], player, distance_to_cut_off - 1, alpha, beta)
+            if evaluate_x > maxval and column in brd.free_cols():
+                maxval = evaluate_x
+                argmax = column
+            if maxval >= brd.n:
+                    # print("Win state found for ", player)
+                return (argmax, maxval)
+            if maxval > alpha:
+                alpha = maxval
+            if (alpha > parentbeta):
+                return (argmax, 0)
+            if (beta < parentalpha):
+                return (argmax, 0)
+            x += 1
+            #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
+            #        for i in range(0, distance_to_cut_off-1):
+            #            depthstr[i] += "|"
+        return (argmax, maxval)
+
+    def choose_min(self, brd, player, distance_to_cut_off, parentalpha, parentbeta):
+        alpha = -1000000
+        beta = 1000000
+        argmin = 0#random.choice(brd.free_cols())
+        minval = 1
+        x = 0
+        successors = self.get_successors(brd)
+        for column in brd.free_cols():
+            (argx, evaluate_x) = (column, self.evaluate(successors[x][0], player)) if distance_to_cut_off <= 0 \
+                else self.choose_max(successors[x][0], player, distance_to_cut_off - 1, alpha, beta)
+            evaluate_x = -evaluate_x
+            if evaluate_x < minval and column in brd.free_cols():
+                maxmin = -evaluate_x
+                argmin = column
+            if minval >= brd.n:
+                #print("Win state found for ", player)
+                return (argmin, minval)
+            if minval < beta:
+                beta = minval
+            if (alpha > parentbeta):
+                return (argmin, 0)
+            if (beta < parentalpha):
+                return (argmin, 0)
+            x += 1
+#        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
+#        for i in range(0, distance_to_cut_off-1):
+#            depthstr[i] += "|"
+        return (argmin, minval)
 
     # Pick a column.
     #
@@ -163,7 +220,7 @@ class AlphaBetaAgent(agent.Agent):
 #        print(depthstr[2])
 #        print(depthstr[1])
 #        print(depthstr[0])
-        return self.choose_best_move(brd, 3)
+        return self.choose_best_move(brd, 1)
 
         # when countToCutoff reaches max_depth, stop the search and evaluate
         #print("reached go")
