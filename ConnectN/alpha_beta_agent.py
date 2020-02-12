@@ -160,7 +160,7 @@ class AlphaBetaAgent(agent.Agent):
         argmax = 0  # random.choice(brd.free_cols())
         maxval = -1
         successors = self.get_successors(brd)
-        random.shuffle(successors)
+#        random.shuffle(successors)
         for successor in successors:
             (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], player)) if distance_to_cut_off <= 0 \
                 else self.choose_min(successor[0], player, distance_to_cut_off - 1, alpha, beta)
@@ -168,7 +168,7 @@ class AlphaBetaAgent(agent.Agent):
                 maxval = evaluate_x
                 argmax = successor[1]
             if successor[0].get_outcome() == player:
-                return (successor[1], 1000000 + distance_to_cut_off * distance_to_cut_off)
+                return (successor[1], 1000000)
             if maxval >= brd.n:
                 # print("Win state found for ", player)
                 return (argmax, maxval)
@@ -197,7 +197,7 @@ class AlphaBetaAgent(agent.Agent):
                 maxmin = -evaluate_x
                 argmin = successor[1]
             if successor[0].get_outcome() == (player % 2) + 1:
-                return (successor[1], 1000000 + distance_to_cut_off)
+                return (successor[1], 1000000)
             if minval >= brd.n:
                 # print("Win state found for ", player)
                 return (argmin, minval)
@@ -238,7 +238,7 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
-        return self.choose_best_move(brd, 2)
+        return self.choose_best_move(brd, 6)
 
         # when countToCutoff reaches max_depth, stop the search and evaluate
         # print("reached go")
