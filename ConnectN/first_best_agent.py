@@ -43,8 +43,6 @@ def max_line_in_direction(brd, target, x, y, dx, dy):
 def max_unstopped_line_in_direction(brd, target, x, y, dx, dy):
     """Return max in a row in given direction"""
     # Go through elements
-    if (brd.board[y][x] != target):
-        return 0
     enemy = (target % 2 + 1)
     i = 0
     count = 0
@@ -54,6 +52,29 @@ def max_unstopped_line_in_direction(brd, target, x, y, dx, dy):
         if brd.board[y + i * dy][x + i * dx] == target:
             count += 1
         i += 1
+    return count
+
+
+# Check if a line of identical tokens exists starting at (x,y) in direction (dx,dy)
+#
+# PARAM [int] x:  the x coordinate of the starting cell
+# PARAM [int] y:  the y coordinate of the starting cell
+# PARAM [int] dx: the step in the x direction
+# PARAM [int] dy: the step in the y direction
+# RETURN [int]: return the number in a row
+def max_line_in_direction_with_potential(brd, target, x, y, dx, dy):
+    """Return max in a row in given direction"""
+    # Go through elements
+    i = 0
+    count = 0
+    while (((x + i * dx < brd.w) and
+            (y + i * dy >= 0) and (y + i * dy < brd.h))
+           and (brd.board[y + i * dy][x + i * dx] == target or brd.board[y + i * dy][x + i * dx] == 0)):
+        if (brd.board[y + i * dy][x + i * dx] == target):
+            count += 1
+        i += 1
+    if i < brd.n:
+        return 0
     return count
 
 
@@ -81,8 +102,20 @@ def max_unstopped_line_at(brd, target, x, y):
                max(max_unstopped_line_in_direction(brd, target, x, y, 1, 1),  # Diagonal up
                    max_unstopped_line_in_direction(brd, target, x, y, 1, -1)))  # Diagonal down
 
+# Check if a line of identical tokens exists starting at (x,y) in any direction
+#
+# PARAM [int] x:  the x coordinate of the starting cell
+# PARAM [int] y:  the y coordinate of the starting cell
+# RETURN [int]: max number in a row
+def max_line_at_with_potential(brd, target, x, y):
+    """Return True if a line of identical tokens exists starting at (x,y) in any direction"""
+    return max(max(max_line_in_direction_with_potential(brd, target, x, y, 1, 0),  # Horizontal
+                   max_line_in_direction_with_potential(brd, target, x, y, 0, 1)),  # Vertical
+               max(max_line_in_direction_with_potential(brd, target, x, y, 1, 1),  # Diagonal up
+                   max_line_in_direction_with_potential(brd, target, x, y, 1, -1)))  # Diagonal down
 
-class AlphaBetaAgent(agent.Agent):
+
+class FirstBestAgent(agent.Agent):
     """Agent that uses alpha-beta search"""
 
     # Class constructor.
@@ -221,16 +254,16 @@ class AlphaBetaAgent(agent.Agent):
     def go(self, brd: board.Board):
         """Search for the best move (choice of column for the token)"""
         # Your code here
-#        argmax = 0  # random.choice(brd.free_cols())
-#        maxval = -1
-#        successors = self.get_successors(brd)
+        argmax = 0  # random.choice(brd.free_cols())
+        maxval = -1
+        successors = self.get_successors(brd)
 #        random.shuffle(successors)
-#        for successor in successors:
-#            (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], self.player))
-#            if evaluate_x > maxval and successor[1] in brd.free_cols():
-#                maxval = evaluate_x
-#                argmax = successor[1]
-#        return argmax
+        for successor in successors:
+            (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], self.player))
+            if evaluate_x > maxval and successor[1] in brd.free_cols():
+                maxval = evaluate_x
+                argmax = successor[1]
+        return argmax
         #        depthstr[0] = ""
         #        depthstr[1] = ""
         #        depthstr[2] = ""
@@ -238,7 +271,7 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
-        return self.choose_best_move(brd, 2)
+        return self.choose_best_move(brd, 3)
 
         # when countToCutoff reaches max_depth, stop the search and evaluate
         # print("reached go")
