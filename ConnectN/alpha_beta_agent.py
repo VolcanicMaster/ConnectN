@@ -150,7 +150,7 @@ class AlphaBetaAgent(agent.Agent):
             max_in_a_row = 999;
 
         if (self.get_outcome_short()== 2):
-            max_in_a_row = 0;
+            max_in_a_row = -1;
 
         return max_in_a_row;
 
