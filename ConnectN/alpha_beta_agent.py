@@ -98,6 +98,14 @@ class AlphaBetaAgent(agent.Agent):
     # PARAM [board.Board] brd: the current board state
     # PARAM [int]: the player number of this instance's agent
     # RETURN [int]: an estimation of the utility of the board
+    def instancecheck(self, instance):
+        #if next step player 1 will win
+        max_in_a_row = 999;
+
+        #if next step player 2 will win
+        max_in_a_row = 0;
+        return max_in_a_row;
+
     def evaluate(self, brd, player):
         """Evaluate a heuristic of the board state"""
         # Your code here
@@ -208,6 +216,12 @@ class AlphaBetaAgent(agent.Agent):
             newBrd = brd.copy()
             self.tryMoves(newBrd, copy.deepcopy(count), thisAgent)
             return newBrd
+
+    # return the outcome of playing a move against another alpha-beta player by using the cutoff max_depth
+    def cutMove(self,brd,count):
+        bestMove = Value()
+        
+
 
     # Get the successors of the given board.
     #
