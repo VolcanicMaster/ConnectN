@@ -1,11 +1,17 @@
 import math
 import agent
+import random
 
 
 ###########################
 # Alpha-Beta Search Agent #
 ###########################
 
+depthstr = [
+    "",
+    "",
+    ""
+]
 
 # Check if a line of identical tokens exists starting at (x,y) in direction (dx,dy)
 #
@@ -54,14 +60,39 @@ class AlphaBetaAgent(agent.Agent):
     #
     # PARAM [board.Board] brd: the current board state
     # RETURN [int]: an estimation of the utility of the board
-    def evaluate(self, brd):
+    def evaluate(self, brd, player):
         """Evaluate a heuristic of the board state"""
         # Your code here
         max_in_a_row = 0
         for x in range(brd.w):
             for y in range(brd.h):
-                max_in_a_row = max(max_in_a_row, max_line_at(brd, self.player, x, y))
+                max_in_a_row = max(max_in_a_row, max_line_at(brd, player, x, y))
+
+        min_in_a_row = 0
+        for x in range(brd.w):
+            for y in range(brd.h):
+                min_in_a_row = max(min_in_a_row, max_line_at(brd, (player%2) + 1, x, y))
+
         return max_in_a_row
+
+    def choose_max(self, brd, player, is_min, distance_to_cut_off):
+        argmax = random.choice(brd.free_cols())
+        maxval = -1 if not is_min else -1000
+        successors = self.get_successors(brd)
+        for x in range(len(successors)):
+            (argx, evaluate_x) = (x, self.evaluate(successors[x][0], player)) if distance_to_cut_off == 0 \
+                else self.choose_max(successors[x][0], (player%2) + 1, not is_min, distance_to_cut_off - 1)
+            if is_min:
+                evaluate_x = -evaluate_x
+            if evaluate_x > maxval and x in brd.free_cols():
+                maxval = evaluate_x if not is_min else -evaluate_x
+                argmax = x
+            if maxval >= brd.n:
+                return (argmax, maxval)
+        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
+        for i in range(0, distance_to_cut_off-1):
+            depthstr[i] += "|"
+        return (argmax, maxval)
 
     # Pick a column.
     #
@@ -72,19 +103,14 @@ class AlphaBetaAgent(agent.Agent):
     def go(self, brd):
         """Search for the best move (choice of column for the token)"""
         # Your code here
-        argmax = 0
-        maxval = -1
-        successors = self.get_successors(brd)
-        print(successors)
-        print(successors[1])
-        print(successors[1][0])
-        for x in range(len(successors)):
-            evaluate_x = self.evaluate(successors[x][0])
-            if evaluate_x > maxval:
-                maxval = evaluate_x
-                argmax = x
-                print("(argmax, maxval) = (" + str(argmax) + ", " + str(maxval) + ")\n")
-        return argmax
+        depthstr[0] = ""
+        depthstr[1] = ""
+        depthstr[2] = ""
+        column = self.choose_max(brd, self.player, False, 2)[0]
+        print(depthstr[2])
+        print(depthstr[1])
+        print(depthstr[0])
+        return column
 
     # Get the successors of the given board.
     #
