@@ -148,10 +148,10 @@ class AlphaBetaAgent(agent.Agent):
 
     def instancecheck(self, instance):
         #if next step player 1 will win
-        if (get_outcome_short == 1):
+        if (get_outcome_short()== 1):
             max_in_a_row = 999;
 
-        if (get_outcome_short== 2):
+        if (get_outcome_short()== 2):
             max_in_a_row = 0;
 
         return max_in_a_row;
