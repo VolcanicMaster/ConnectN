@@ -8,9 +8,11 @@ import first_best_agent
 
 #seed = random.choice(range(1000))
 #seed = 316 #solved
-seed = 899 #TODO random wins in seed 899, resolve. Is it going deep instead of broad?,
+seed = 709 #TODO random wins in seed 899, resolve. Is it going deep instead of broad?,
 #TODO we need to change the code to do a-b search, not DFS?
 # we need to trace the steps of the search to see why it doesn't block random from winning
+
+#TODO seed 709 makes a-b do an illegal move
 random.seed(seed)
 print(seed)
 

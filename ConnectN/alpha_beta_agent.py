@@ -250,56 +250,6 @@ class AlphaBetaAgent(agent.Agent):
         print(bestmove, " == ", self.choose_max(brd, self.player, False, 2)[0])
         return bestmove
 
-    # return the move that leads to the board with the best a-b evaluation
-    def tryMoves(self, brd: board.Board, count, thisAgent):
-        # print("reached tryMoves")
-        thisPlayer = brd.player
-        freecols = brd.free_cols()
-        if not freecols:
-            return 0
-        bestMove = freecols[0]
-        bestMoveEval = 0
-        for x in freecols:
-            # Recurse by simulating all possible moves and then playing the other agent up to cutoff max_depth
-            brdToEval = self.tryMove(brd.copy(), copy.deepcopy(x), copy.deepcopy(count), thisAgent)
-            # Evaluate that boardstate
-            eval = self.evaluate(brdToEval, thisAgent)
-            if eval > bestMoveEval:
-                brd = brdToEval
-                bestMoveEval = eval
-                bestMove = x
-        return bestMove
-
-    # return the outcome of playing a move against another alpha-beta player, until the cutoff max_depth
-    def tryMove(self, brd: board.Board, x, count: int, thisAgent: int):
-        # print("reached tryMove")
-        # Try a move (copy board, edit with add_token)
-
-        brd.add_token(x)
-
-        outcome = brd.get_outcome()
-        if outcome != 0:
-            # print("found winning path: ", outcome, " won!")
-            # someone won, so stop this branch
-            # if the person who won was this agent, stop and return a great evaluation
-            # if the person who won was the opponent, stop and return a terrible evaluation
-            # if outcome == thisAgent:
-            #    print("return a great evaluation")
-            # else:
-            #    print("return a terrible evaluation")
-            # brd.print_it()
-            return brd
-
-        # check if cutoff has been reached
-        count += 1
-        if count == self.max_depth:
-            # if the cutoff has been reached, stop the search
-            return brd
-        else:
-            newBrd = brd.copy()
-            self.tryMoves(newBrd, copy.deepcopy(count), thisAgent)
-            return newBrd
-
     # Get the successors of the given board.
     #
     # PARAM [board.Board] brd: the board state
