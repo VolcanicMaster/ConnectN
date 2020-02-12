@@ -94,18 +94,66 @@ class AlphaBetaAgent(agent.Agent):
         self.max_depth = max_depth
 
     # Evaluate a Board State.
-    #
+
     # PARAM [board.Board] brd: the current board state
     # PARAM [int]: the player number of this instance's agent
     # RETURN [int]: an estimation of the utility of the board
+
+    # instancecheck
+    # redo the is_line_at to check it there's a line of n-1 identical tokens
+    def is_line_at_short(self, x, y, dx, dy):
+        """Return True if a line of identical tokens exists starting at (x,y) in direction (dx,dy)"""
+        # Avoid out-of-bounds errors
+        if ((x + (self.n - 2) * dx >= self.w) or
+                (y + (self.n - 2) * dy < 0) or (y + (self.n - 2) * dy >= self.h)):
+            return False
+        # Get token at (x,y)
+        t = self.board[y][x]
+        # Go through elements
+        for i in range(1, self.n -1):
+            if self.board[y + i * dy][x + i * dx] != t:
+                return False
+        return True
+
+    def is_any_line_at_short(self, x, y):
+        """Return True if a line of identical tokens exists starting at (x,y) in any direction"""
+        return (self.is_line_at_short(x, y, 1, 0) or # Horizontal
+                self.is_line_at_short(x, y, 0, 1) or # Vertical
+                self.is_line_at_short(x, y, 1, 1) or # Diagonal up
+                self.is_line_at_short(x, y, 1, -1)) # Diagonal down
+
+    def get_outcome_short(self):
+        """Returns the winner of the game: 1 for Player 1, 2 for Player 2, and 0 for no winner"""
+        for x in range(self.w):
+            for y in range(self.h):
+                if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 1, 0):
+                    if ((self.board[y][x-1] == 0 and (self.board[y-1][x-1] == 1 or self.board[y-1][x-1] == 2)) or
+                        (self.board[y][x+n-1] == 0 and (self.board[y - 1][x+n-1] == 1 or self.board[y - 1][x+n-1] == 2)))
+                    return board[y][x]
+
+                if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 0, 1) and self.board[y+n-1][x] = 0:
+                    return board[y][x]
+
+                if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 1, 1):
+                    if ((self.board[y-1][x-1] == 0 and (self.board[y-2][x-1] == 1 or self.board[y-2][x-1] == 2)) or
+                        (self.board[y+n-1][x+n-1] == 0 and (self.board[y +n-2][x+n-1] == 1 or self.board[y +n-2][x+n-1] == 2)))
+                    return board[y][x]
+
+                if (self.board[y][x] != 0) and self.is_line_at_short(x, y, 1, -1):
+                    if ((self.board[y+1][x+1] == 0 and (self.board[y][x+1] == 1 or self.board[y][x+1] == 2)) or
+                        (self.board[y-n+1][x-n+1] == 0 and (self.board[y-n][x-n+1] == 1 or self.board[y-n][x-n+1] == 2)))
+                    return board[y][x]
+
+        return 0
+
     def instancecheck(self, instance):
         #if next step player 1 will win
-        if (get_outcome()==1):
+        if (get_outcome_short == 1):
             max_in_a_row = 999;
 
-        #if next step player 2 will win
-        if (get_outcome() == 2):
+        if (get_outcome_short== 2):
             max_in_a_row = 0;
+
         return max_in_a_row;
 
     def evaluate(self, brd, player):
