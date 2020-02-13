@@ -127,6 +127,14 @@ class AlphaBetaAgent(agent.Agent):
 
         return total_in_a_row  # - opp_in_a_row
 
+    # Evaluate a Board State.
+    #
+    # PARAM [board.Board] brd: the current board state
+    # PARAM [int]: the player number of this instance's agent
+    # RETURN [int]: an estimation of the utility of the board
+    def evaluate_dif(self, parent_brd, child_brd, player):
+        return self.evaluate(child_brd, player) - self.evaluate(parent_brd, player)
+
     def choose_best_move(self, brd, distance_to_cut_off):
         bestmove = self.choose_max(brd, self.player, distance_to_cut_off - 1, -1000000, 1000000)[
             0]  # if (distance_to_cut_off % 2) else (self.player%2) + 1
@@ -157,7 +165,7 @@ class AlphaBetaAgent(agent.Agent):
     def choose_max(self, brd, player, distance_to_cut_off, parentalpha, parentbeta):
         alpha = -1000000
         beta = 1000000
-        argmax = 0  # random.choice(brd.free_cols())
+        argmax = brd.free_cols()[0]  # random.choice(brd.free_cols())
         maxval = -1
         successors = self.get_successors(brd)
 #        random.shuffle(successors)
@@ -168,16 +176,16 @@ class AlphaBetaAgent(agent.Agent):
                 maxval = evaluate_x
                 argmax = successor[1]
             if successor[0].get_outcome() == player:
-                return (successor[1], 1000000)
+                return (successor[1], self.evaluate(successor[0], player))
             if maxval >= brd.n:
                 # print("Win state found for ", player)
                 return (argmax, maxval)
             if maxval > alpha:
                 alpha = maxval
-            if (alpha > parentbeta):
-                return (argmax, 0)
-            if (beta < parentalpha):
-                return (argmax, 0)
+            #if (alpha > parentbeta):
+            #    return (argmax, 0)
+            #if (beta < parentalpha):
+            #    return (argmax, 0)
             #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
             #        for i in range(0, distance_to_cut_off-1):
             #            depthstr[i] += "|"
@@ -186,7 +194,7 @@ class AlphaBetaAgent(agent.Agent):
     def choose_min(self, brd, player, distance_to_cut_off, parentalpha, parentbeta):
         alpha = -1000000
         beta = 1000000
-        argmin = 0  # random.choice(brd.free_cols())
+        argmin = brd.free_cols()[0]  # random.choice(brd.free_cols())
         minval = 1
         successors = self.get_successors(brd)
         for successor in successors:
@@ -197,16 +205,16 @@ class AlphaBetaAgent(agent.Agent):
                 maxmin = -evaluate_x
                 argmin = successor[1]
             if successor[0].get_outcome() == (player % 2) + 1:
-                return (successor[1], 1000000)
+                return (successor[1], self.evaluate(successor[0], player))
             if minval >= brd.n:
                 # print("Win state found for ", player)
                 return (argmin, minval)
             if minval < beta:
                 beta = minval
-            if (alpha > parentbeta):
-                return (argmin, 0)
-            if (beta < parentalpha):
-                return (argmin, 0)
+            #if (alpha > parentbeta):
+            #    return (argmin, 0)
+            #if (beta < parentalpha):
+            #    return (argmin, 0)
         #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
         #        for i in range(0, distance_to_cut_off-1):
         #            depthstr[i] += "|"
@@ -238,7 +246,7 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
-        return self.choose_best_move(brd, 6)
+        return self.choose_best_move(brd, 3)
 
         # when countToCutoff reaches max_depth, stop the search and evaluate
         # print("reached go")
