@@ -162,6 +162,43 @@ class AlphaBetaAgent(agent.Agent):
         #            depthstr[i] += "|"
         return (argmax, maxval)
 
+    def minimax(self, board, depth, maximizingPlayer):
+        argmax = board.free_cols()[0]
+        if depth <= 0:
+            return (0, self.evaluate(board, self.player))
+        if maximizingPlayer:
+            value = -1000000
+            successors = self.get_successors(board)
+            for successor in successors:
+                (x, y) = self.minimax(successor[0], depth-1, False)
+                if (y > value):
+                    argmax = successor[1]
+                value = max(value, y)
+                return (argmax, value)
+        else: #(*minimizing player *)
+            value = 1000000
+            successors = self.get_successors(board)
+            for successor in successors:
+                (x, y) = self.minimax(successor[0], depth-1, True)
+                if (y < value):
+                    argmax = successor[1]
+                value = min(value, y)
+                return (argmax, value)
+
+    def negamax(self, board, depth, color):
+        if depth == 0:
+            return (0, color * self.evaluate(board, self.player))
+        argmax = board.free_cols()[0]
+        value = -1000000
+        successors = self.get_successors(board)
+        for successor in successors:
+            (x, y) = self.negamax(successor[0], depth - 1, -color)
+            result = -y
+            if (result > value):
+                argmax = successor[1]
+            value = max(value, result)
+        return (argmax, value)
+
     def choose_max(self, brd, player, distance_to_cut_off, parentalpha, parentbeta):
         alpha = -1000000
         beta = 1000000
@@ -182,10 +219,10 @@ class AlphaBetaAgent(agent.Agent):
                 return (argmax, maxval)
             if maxval > alpha:
                 alpha = maxval
-            #if (alpha > parentbeta):
-            #    return (argmax, 0)
-            #if (beta < parentalpha):
-            #    return (argmax, 0)
+            if (alpha > parentbeta):
+                return (argmax, 0)
+            if (beta < parentalpha):
+                return (argmax, 0)
             #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
             #        for i in range(0, distance_to_cut_off-1):
             #            depthstr[i] += "|"
@@ -211,10 +248,10 @@ class AlphaBetaAgent(agent.Agent):
                 return (argmin, minval)
             if minval < beta:
                 beta = minval
-            #if (alpha > parentbeta):
-            #    return (argmin, 0)
-            #if (beta < parentalpha):
-            #    return (argmin, 0)
+            if (alpha > parentbeta):
+                return (argmin, 0)
+            if (beta < parentalpha):
+                return (argmin, 0)
         #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
         #        for i in range(0, distance_to_cut_off-1):
         #            depthstr[i] += "|"
@@ -246,7 +283,9 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
-        return self.choose_best_move(brd, 3)
+        #return self.choose_best_move(brd, 2)
+        #return self.minimax(brd, 2, True)[0]
+        return self.negamax(brd, 2, 1)[0]
 
         # when countToCutoff reaches max_depth, stop the search and evaluate
         # print("reached go")
