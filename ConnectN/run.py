@@ -63,7 +63,7 @@ g = game.Game(7,  # width
 
 # Execute the game
 count = 0
-for i in range(0, 99):
+for i in range(0, 100):
     g = game.Game(7,  # width
               6,  # height
               4,  # tokens in a row to win
