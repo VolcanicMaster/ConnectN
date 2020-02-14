@@ -63,11 +63,11 @@ g = game.Game(7,  # width
 
 # Execute the game
 count = 0
-for i in range(0, 100):
+for i in range(0, 50):
     g = game.Game(7,  # width
               6,  # height
               4,  # tokens in a row to win
-              first_best_agent.FirstBestAgent("firstbest", 4),         # player 1
+              agent.RandomAgent("random"),         # player 1
               aba.AlphaBetaAgent("alphabeta", 4))  # player 2
     outcome = g.go()
     if outcome == 2:

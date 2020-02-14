@@ -187,8 +187,14 @@ class AlphaBetaAgent(agent.Agent):
 
     def negamax(self, board, depth, color):
         if depth == 0:
-            return (0, color * self.evaluate(board, self.player))
-        argmax = board.free_cols()[0]
+            return (0, self.evaluate(board, self.player)) #color *
+        if board.get_outcome() != 0:
+            return (0, self.evaluate(board, self.player))
+            # depth * prioritizes for when this outcome happened?
+        freecols = board.free_cols()
+        if not freecols:
+            return (0, self.evaluate(board, self.player))
+        argmax = freecols[0]
         value = -1000000
         successors = self.get_successors(board)
         for successor in successors:
@@ -285,17 +291,7 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[0])
         #return self.choose_best_move(brd, 2)
         #return self.minimax(brd, 2, True)[0]
-        return self.negamax(brd, 2, 1)[0]
-
-        # when countToCutoff reaches max_depth, stop the search and evaluate
-        # print("reached go")
-        countToCutoff = 0
-        simBrd = brd.copy()  # brd.copy() ?
-
-        thisAgent = simBrd.player
-        bestmove = self.tryMoves(simBrd, countToCutoff, thisAgent)
-        print(bestmove, " == ", self.choose_max(brd, self.player, False, 2)[0])
-        return bestmove
+        return self.negamax(brd, self.max_depth, 1)[0]
 
     # Get the successors of the given board.
     #
