@@ -33,8 +33,9 @@ def max_line_in_direction(brd, target, x, y, dx, dy):
     return i
 
 
-# Check if a line of identical tokens exists starting at (x,y) in direction (dx,dy)
+# Check if a line of identical + empty tokens exists starting at (x,y) in direction (dx,dy), return the number of identical tokens
 #
+# PARAM [int] target: player of the token being counted
 # PARAM [int] x:  the x coordinate of the starting cell
 # PARAM [int] y:  the y coordinate of the starting cell
 # PARAM [int] dx: the step in the x direction
@@ -250,15 +251,15 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
-        successors = self.get_successors(brd)
-        for successor in successors:
-            if successor[0].get_outcome() == brd.player:
-                #print("instant check: player won")
-                return successor[1]
-            for successor2 in self.get_successors(successor[0]):
-                if successor2[0].get_outcome() == (brd.player % 2) + 1:
-                    #print("instant check: opponent won")
-                    return successor2[1]
+        #successors = self.get_successors(brd)
+        #for successor in successors:
+        #    if successor[0].get_outcome() == brd.player:
+        #        #print("instant check: player won")
+        #        return successor[1]
+        #    for successor2 in self.get_successors(successor[0]):
+        #        if successor2[0].get_outcome() == (brd.player % 2) + 1:
+        #            #print("instant check: opponent won")
+        #            return successor2[1]
 
 
         return self.choose_best_move(brd, self.max_depth)
