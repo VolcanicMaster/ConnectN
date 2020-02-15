@@ -68,7 +68,7 @@ for i in range(0, 50):
               6,  # height
               4,  # tokens in a row to win
               agent.RandomAgent("random"),         # player 1
-              aba.AlphaBetaAgent("alphabeta", 5))  # player 2
+              aba.AlphaBetaAgent("alphabeta", 4))  # player 2
     outcome = g.go()
     if outcome == 2:
         count+=1

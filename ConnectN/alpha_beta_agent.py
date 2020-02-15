@@ -147,18 +147,18 @@ class AlphaBetaAgent(agent.Agent):
         if not freecols:
             return self.evaluate(brd,player,distance_to_cut_off)
         argmax = freecols[0]  # random.choice(brd.free_cols())
-        maxval = -1090000 #TODO this val should not be set to this, it should be evaluated?
+        maxval = -1090000
         successors = self.get_successors(brd)
 #        random.shuffle(successors)
         if not successors:
             return self.evaluate(brd,player,distance_to_cut_off)
         for successor in successors:
             if successor[0].get_outcome() == player:
-                print("instant check: player won")
+                #print("instant check: player won")
                 return (successor[1],self.evaluate(brd,player,distance_to_cut_off) * distance_to_cut_off)
             for successor2 in self.get_successors(successor[0]):
                 if successor2[0].get_outcome() == (player % 2) + 1:
-                    print("instant check: opponent won")
+                    #print("instant check: opponent won")
                     return (successor2[1],self.evaluate(successor[0],player,distance_to_cut_off) * distance_to_cut_off)
 
             (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], player,distance_to_cut_off)) if distance_to_cut_off <= 0 \
@@ -166,17 +166,17 @@ class AlphaBetaAgent(agent.Agent):
             if evaluate_x > maxval:
                 maxval = evaluate_x
                 argmax = successor[1]
-                print("print(maxval): ",maxval)
+                #print("print(maxval): ",maxval)
             if successor[0].get_outcome() == player:
                 return (successor[1], self.evaluate(successor[0], player,distance_to_cut_off))
             if maxval > alpha:
                 alpha = maxval
-                print("alpha: ", alpha)
+                #print("alpha: ", alpha)
             if (alpha > parentbeta):
-                print("pruned remaining nodes")
+                #print("pruned remaining nodes")
                 return (argmax, 0)
             if (beta < parentalpha):
-                print("pruned remaining nodes")
+                #print("pruned remaining nodes")
                 return (argmax, 0)
             #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
             #        for i in range(0, distance_to_cut_off-1):
@@ -196,29 +196,28 @@ class AlphaBetaAgent(agent.Agent):
             return self.evaluate(brd,player,distance_to_cut_off)
         for successor in successors:
             if successor[0].get_outcome() == (player % 2) + 1:
-                print("instant check: opponent won")
+                #print("instant check: opponent won")
                 return (successor[1],self.evaluate(brd,player,distance_to_cut_off) * distance_to_cut_off)
             for successor2 in self.get_successors(successor[0]):
                 if successor2[0].get_outcome() == player:
-                    print("instant check: player won")
+                    #print("instant check: player won")
                     return (successor2[1],self.evaluate(successor[0],player,distance_to_cut_off) * distance_to_cut_off)
             (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], player,distance_to_cut_off)) if distance_to_cut_off <= 0 \
                 else self.choose_max(successor[0], player, distance_to_cut_off - 1, alpha, beta)
             if evaluate_x < minval:
-                minval = evaluate_x #TODO if this is removed, winrate skyrockets (is it choosing minval over the immediate win?)
-                # hypothesis: evaluate is choosing a non-win as the better choice
+                minval = evaluate_x
                 argmin = successor[1]
-                print("print(minval): ", minval)
+                #print("print(minval): ", minval)
             if successor[0].get_outcome() == (player % 2) + 1:
                 return (successor[1], self.evaluate(successor[0], player,distance_to_cut_off))
             if minval < beta:
                 beta = minval
-                print("beta: " , beta)
+                #print("beta: " , beta)
             if (alpha > parentbeta):
-                print("pruned remaining nodes")
+                #print("pruned remaining nodes")
                 return (argmin, 0)
             if (beta < parentalpha):
-                print("pruned remaining nodes")
+                #print("pruned remaining nodes")
                 return (argmin, 0)
         #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
         #        for i in range(0, distance_to_cut_off-1):
@@ -251,19 +250,18 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
-        #TODO fix minimax so the winrate is better than with this instant check clause
         successors = self.get_successors(brd)
         for successor in successors:
             if successor[0].get_outcome() == brd.player:
-                print("instant check: player won")
+                #print("instant check: player won")
                 return successor[1]
             for successor2 in self.get_successors(successor[0]):
                 if successor2[0].get_outcome() == (brd.player % 2) + 1:
-                    print("instant check: opponent won")
+                    #print("instant check: opponent won")
                     return successor2[1]
 
 
-        return self.choose_best_move(brd, 2)
+        return self.choose_best_move(brd, self.max_depth)
         #return self.minimax(brd, 2, True)[0]
         #return self.negamax(brd, self.max_depth, 1)[0]
 
