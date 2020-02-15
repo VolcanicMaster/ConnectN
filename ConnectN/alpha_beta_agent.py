@@ -99,7 +99,7 @@ class AlphaBetaAgent(agent.Agent):
     # PARAM [board.Board] brd: the current board state
     # PARAM [int]: the player number of this instance's agent
     # RETURN [int]: an estimation of the utility of the board
-    def evaluate(self, brd, player):
+    def evaluate(self, brd, player, distance_to_cut_off):
         """Evaluate a heuristic of the board state"""
         # Your code here
         current_player = brd.player
@@ -135,14 +135,6 @@ class AlphaBetaAgent(agent.Agent):
         #print("eval val: ", total_in_a_row)
         return total_in_a_row  # - opp_in_a_row
 
-    # Evaluate a Board State.
-    #
-    # PARAM [board.Board] brd: the current board state
-    # PARAM [int]: the player number of this instance's agent
-    # RETURN [int]: an estimation of the utility of the board
-    def evaluate_dif(self, parent_brd, child_brd, player):
-        return self.evaluate(child_brd, player) - self.evaluate(parent_brd, player)
-
     def choose_best_move(self, brd, distance_to_cut_off):
         bestmove = self.choose_max(brd, self.player, distance_to_cut_off - 1, -1000000, 1000000)[
             0]  # if (distance_to_cut_off % 2) else (self.player%2) + 1
@@ -153,22 +145,30 @@ class AlphaBetaAgent(agent.Agent):
         beta = 1000000
         freecols = brd.free_cols()
         if not freecols:
-            return self.evaluate(brd,player)
+            return self.evaluate(brd,player,distance_to_cut_off)
         argmax = freecols[0]  # random.choice(brd.free_cols())
-        maxval = -1
+        maxval = -1090000 #TODO this val should not be set to this, it should be evaluated?
         successors = self.get_successors(brd)
 #        random.shuffle(successors)
+        if not successors:
+            return self.evaluate(brd,player,distance_to_cut_off)
         for successor in successors:
-            (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], player)) if distance_to_cut_off <= 0 \
+            if successor[0].get_outcome() == player:
+                print("instant check: player won")
+                return (successor[1],self.evaluate(brd,player,distance_to_cut_off) * distance_to_cut_off)
+            for successor2 in self.get_successors(successor[0]):
+                if successor2[0].get_outcome() == (player % 2) + 1:
+                    print("instant check: opponent won")
+                    return (successor2[1],self.evaluate(successor[0],player,distance_to_cut_off) * distance_to_cut_off)
+
+            (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], player,distance_to_cut_off)) if distance_to_cut_off <= 0 \
                 else self.choose_min(successor[0], player, distance_to_cut_off - 1, alpha, beta)
-            if evaluate_x > maxval and successor[1] in brd.free_cols():
+            if evaluate_x > maxval:
                 maxval = evaluate_x
                 argmax = successor[1]
+                print("print(maxval): ",maxval)
             if successor[0].get_outcome() == player:
-                return (successor[1], self.evaluate(successor[0], player))
-            if maxval >= brd.n:
-                # print("Win state found for ", player)
-                return (argmax, maxval)
+                return (successor[1], self.evaluate(successor[0], player,distance_to_cut_off))
             if maxval > alpha:
                 alpha = maxval
                 print("alpha: ", alpha)
@@ -188,22 +188,29 @@ class AlphaBetaAgent(agent.Agent):
         beta = 1000000
         freecols = brd.free_cols()
         if not freecols:
-            return self.evaluate(brd, player)
+            return self.evaluate(brd, player,distance_to_cut_off)
         argmin = freecols[0]  # random.choice(brd.free_cols())
-        minval = 1
+        minval = 1090000
         successors = self.get_successors(brd)
+        if not successors:
+            return self.evaluate(brd,player,distance_to_cut_off)
         for successor in successors:
-            (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], player)) if distance_to_cut_off <= 0 \
-                else self.choose_max(successor[0], player, distance_to_cut_off - 1, alpha, beta)
-            evaluate_x = -evaluate_x
-            if evaluate_x < minval and successor[1] in brd.free_cols():
-                maxmin = -evaluate_x
-                argmin = successor[1]
             if successor[0].get_outcome() == (player % 2) + 1:
-                return (successor[1], self.evaluate(successor[0], player))
-            if minval >= brd.n:
-                # print("Win state found for ", player)
-                return (argmin, minval)
+                print("instant check: opponent won")
+                return (successor[1],self.evaluate(brd,player,distance_to_cut_off) * distance_to_cut_off)
+            for successor2 in self.get_successors(successor[0]):
+                if successor2[0].get_outcome() == player:
+                    print("instant check: player won")
+                    return (successor2[1],self.evaluate(successor[0],player,distance_to_cut_off) * distance_to_cut_off)
+            (argx, evaluate_x) = (successor[1], self.evaluate(successor[0], player,distance_to_cut_off)) if distance_to_cut_off <= 0 \
+                else self.choose_max(successor[0], player, distance_to_cut_off - 1, alpha, beta)
+            if evaluate_x < minval:
+                minval = evaluate_x #TODO if this is removed, winrate skyrockets (is it choosing minval over the immediate win?)
+                # hypothesis: evaluate is choosing a non-win as the better choice
+                argmin = successor[1]
+                print("print(minval): ", minval)
+            if successor[0].get_outcome() == (player % 2) + 1:
+                return (successor[1], self.evaluate(successor[0], player,distance_to_cut_off))
             if minval < beta:
                 beta = minval
                 print("beta: " , beta)
@@ -244,6 +251,18 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
+        #TODO fix minimax so the winrate is better than with this instant check clause
+        successors = self.get_successors(brd)
+        for successor in successors:
+            if successor[0].get_outcome() == brd.player:
+                print("instant check: player won")
+                return successor[1]
+            for successor2 in self.get_successors(successor[0]):
+                if successor2[0].get_outcome() == (brd.player % 2) + 1:
+                    print("instant check: opponent won")
+                    return successor2[1]
+
+
         return self.choose_best_move(brd, 2)
         #return self.minimax(brd, 2, True)[0]
         #return self.negamax(brd, self.max_depth, 1)[0]
