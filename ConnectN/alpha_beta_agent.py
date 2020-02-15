@@ -102,29 +102,37 @@ class AlphaBetaAgent(agent.Agent):
     def evaluate(self, brd, player):
         """Evaluate a heuristic of the board state"""
         # Your code here
-        max_in_a_row = 0
+        current_player = brd.player
+        #max_in_a_row = 0
         total_in_a_row = 0
-        opp_in_a_row = 0
+        #opp_in_a_row = 0
         for x in range(brd.w):
             for y in range(brd.h):
-                maxp = max_unstopped_line_at(brd, player, x, y)
-                maxopp = max_unstopped_line_at(brd, (player % 2) + 1, x, y)
-                max_in_a_row = max(max_in_a_row, maxp)
-                opp_in_a_row = max(opp_in_a_row, maxopp)
+                maxp = max_unstopped_line_at(brd, player, x, y) # length of the player's line at x,y (any dir)
+                maxopp = max_unstopped_line_at(brd, (player % 2) + 1, x, y) # length of the opponent's line at x,y (any dir)
+                #max_in_a_row = max(max_in_a_row, maxp)
+                #opp_in_a_row = max(opp_in_a_row, maxopp)
                 if maxp > 1:
                     total_in_a_row += maxp * maxp
                 if maxp >= brd.n:
-                    total_in_a_row += 1000000
+                    reward = 1000000
+                    if current_player != player:
+                        reward /= 2
+                    total_in_a_row += reward
                 if maxopp > 1:
                     total_in_a_row -= maxopp * maxopp
                 if maxopp >= brd.n:
-                    total_in_a_row -= 1000000
+                    reward = 1000000
+                    if current_player == player:
+                        reward /= 2
+                    total_in_a_row -= reward
 
         # outcome: int = brd.copy().get_outcome()
         # if outcome == player:
         #    print("Winning outcome for ", player)
         #    return 1000000
 
+        #print("eval val: ", total_in_a_row)
         return total_in_a_row  # - opp_in_a_row
 
     # Evaluate a Board State.
@@ -140,75 +148,13 @@ class AlphaBetaAgent(agent.Agent):
             0]  # if (distance_to_cut_off % 2) else (self.player%2) + 1
         return bestmove
 
-    def choose_max_orig(self, brd, player, is_min, distance_to_cut_off):
-        argmax = 0  # random.choice(brd.free_cols())
-        maxval = -1 if not is_min else -1000
-        x = 0
-        successors = self.get_successors(brd)
-        for column in brd.free_cols():
-            (argx, evaluate_x) = (column, self.evaluate(successors[x][0], player)) if distance_to_cut_off <= 0 \
-                else self.choose_max(successors[x][0], (player % 2) + 1, not is_min, distance_to_cut_off - 1)
-            if is_min:
-                evaluate_x = -evaluate_x
-            if evaluate_x > maxval and column in brd.free_cols():
-                maxval = evaluate_x if not is_min else -evaluate_x
-                argmax = column
-            if maxval >= brd.n:
-                # print("Win state found for ", player)
-                return (argmax, maxval)
-            x += 1
-        #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
-        #        for i in range(0, distance_to_cut_off-1):
-        #            depthstr[i] += "|"
-        return (argmax, maxval)
-
-    def minimax(self, board, depth, maximizingPlayer):
-        argmax = board.free_cols()[0]
-        if depth <= 0:
-            return (0, self.evaluate(board, self.player))
-        if maximizingPlayer:
-            value = -1000000
-            successors = self.get_successors(board)
-            for successor in successors:
-                (x, y) = self.minimax(successor[0], depth-1, False)
-                if (y > value):
-                    argmax = successor[1]
-                value = max(value, y)
-                return (argmax, value)
-        else: #(*minimizing player *)
-            value = 1000000
-            successors = self.get_successors(board)
-            for successor in successors:
-                (x, y) = self.minimax(successor[0], depth-1, True)
-                if (y < value):
-                    argmax = successor[1]
-                value = min(value, y)
-                return (argmax, value)
-
-    def negamax(self, board, depth, color):
-        if depth == 0:
-            return (0, self.evaluate(board, self.player)) #color *
-        if board.get_outcome() != 0:
-            return (0, self.evaluate(board, self.player))
-            # depth * prioritizes for when this outcome happened?
-        freecols = board.free_cols()
-        if not freecols:
-            return (0, self.evaluate(board, self.player))
-        argmax = freecols[0]
-        value = -1000000
-        successors = self.get_successors(board)
-        for successor in successors:
-            (x, y) = self.negamax(successor[0], depth - 1, -color)
-            result = -y
-            if (result > value):
-                argmax = successor[1]
-            value = max(value, result)
-        return (argmax, value)
-
     def choose_max(self, brd, player, distance_to_cut_off, parentalpha, parentbeta):
         alpha = -1000000
         beta = 1000000
-        argmax = brd.free_cols()[0]  # random.choice(brd.free_cols())
+        freecols = brd.free_cols()
+        if not freecols:
+            return self.evaluate(brd,player)
+        argmax = freecols[0]  # random.choice(brd.free_cols())
         maxval = -1
         successors = self.get_successors(brd)
 #        random.shuffle(successors)
@@ -225,9 +171,12 @@ class AlphaBetaAgent(agent.Agent):
                 return (argmax, maxval)
             if maxval > alpha:
                 alpha = maxval
+                print("alpha: ", alpha)
             if (alpha > parentbeta):
+                print("pruned remaining nodes")
                 return (argmax, 0)
             if (beta < parentalpha):
+                print("pruned remaining nodes")
                 return (argmax, 0)
             #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
             #        for i in range(0, distance_to_cut_off-1):
@@ -237,7 +186,10 @@ class AlphaBetaAgent(agent.Agent):
     def choose_min(self, brd, player, distance_to_cut_off, parentalpha, parentbeta):
         alpha = -1000000
         beta = 1000000
-        argmin = brd.free_cols()[0]  # random.choice(brd.free_cols())
+        freecols = brd.free_cols()
+        if not freecols:
+            return self.evaluate(brd, player)
+        argmin = freecols[0]  # random.choice(brd.free_cols())
         minval = 1
         successors = self.get_successors(brd)
         for successor in successors:
@@ -254,9 +206,12 @@ class AlphaBetaAgent(agent.Agent):
                 return (argmin, minval)
             if minval < beta:
                 beta = minval
+                print("beta: " , beta)
             if (alpha > parentbeta):
+                print("pruned remaining nodes")
                 return (argmin, 0)
             if (beta < parentalpha):
+                print("pruned remaining nodes")
                 return (argmin, 0)
         #        depthstr[distance_to_cut_off] += str((argmax, maxval)) + ", "
         #        for i in range(0, distance_to_cut_off-1):
@@ -289,9 +244,9 @@ class AlphaBetaAgent(agent.Agent):
         #        print(depthstr[2])
         #        print(depthstr[1])
         #        print(depthstr[0])
-        #return self.choose_best_move(brd, 2)
+        return self.choose_best_move(brd, 2)
         #return self.minimax(brd, 2, True)[0]
-        return self.negamax(brd, self.max_depth, 1)[0]
+        #return self.negamax(brd, self.max_depth, 1)[0]
 
     # Get the successors of the given board.
     #
@@ -317,3 +272,5 @@ class AlphaBetaAgent(agent.Agent):
             # Add board to list of successors
             succ.append((nb, col))
         return succ
+
+THE_AGENT = AlphaBetaAgent(" Group28 ", 5)
